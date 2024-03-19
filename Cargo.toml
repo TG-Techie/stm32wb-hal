@@ -1,7 +1,7 @@
 [package]
 name = "stm32wb-hal"
 version = "0.1.14"
-authors = ["eupn <eupn@protonmail.com>"]
+authors = ["eupn <eupn@protonmail.com>", "TG-Techie <jonah@tg-techie.com>"]
 description = "Hardware abstraction layer for the STM32WB55 chips"
 keywords = ["no-std", "stm32wb", "stm32wb55", "stm32wb5mmg", "embedded", "embedded-hal"]
 categories = [
@@ -18,10 +18,19 @@ exclude = [
 	"docs/",
 	"docs/*"
 ]
-edition = "2018"
+
+# TG-CHANGE-CRITICAL: updated edition to "2021"
+edition = "2021"
 
 [dependencies]
+
+# TG-CHANGE-CRITICAL: substituted stm32wb for the stm32wb-pac crate, 
+# see the readme for more info
+stm32wb = {version="0.15.1", features=["stm32wb55"]}
+
+# TG-CHANGE: updated cortex-m to "0.7.7" 
 cortex-m = "0.7.7"
+# TG-TODO: update embedded-dma to "0.2.0"
 embedded-dma = "0.1"
 # TG-TODO: update nb to "1.1.0
 nb = "0.1.1"
@@ -31,33 +40,37 @@ as-slice = "0.1"
 cortex-m-semihosting = { version = "0.3.5", features = ["jlink-quirks"] }
 # TG-CHANGE: updated bit_field to "0.10.2" from "0.10.0"
 bit_field = "0.10.2" 
-heapless = "0.5.3"
-stm32wb = {version="0.15.1", features=["stm32wb55"]}
+# TG-CHANGE: updated heapless to "0.8.0" from "0.5.3"
+heapless = "0.8.0"
+
+# TG-CHANGE: updated cast to "0.3.0" from "0.2.2", no longer requires default-features = false
+cast = "0.3.0"
+
 
 [dependencies.stm32-device-signature]
-version = "0.3.0"
+# TG-CHANGE: updated min version to "0.3.3" from "0.3.0"
+version = "0.3.3"
 features = ["stm32wb5x"]
 
-[dependencies.cast]
-version  = "0.2.2"
-default-features = false
 
-[dependencies.void]
+[dependencies.void] 
 version = "1.0.2"
 default-features = false
 
 [dependencies.stable_deref_trait]
 default-features = false
-version = "1.1"
+version = "1.2"
 
+# TG-TODO: update embedded-hal to "0.2.7"
 [dependencies.embedded-hal]
-version = "0.2.3"
+version = "0.2.7"
 features = ["unproven"]
 
+# TG-TODO: update stm32-usbd to "0.6.0", removed "ram_access_2x16" as it moved to an ASSOCIATED constant
 [dependencies.stm32-usbd]
-version = "0.5.0"
-features = ["ram_access_2x16"]
 optional = true
+version = "0.6.0"
+
 
 [features]
 # see pageage differences https://www.st.com/en/microcontrollers-microprocessors/stm32wbx5.html
@@ -70,16 +83,21 @@ stm32-usbd = ["dep:stm32-usbd"]
 # TG-TODO: flesh this explainer out
 rt = ["stm32wb/rt"]
 
+# TG-TODO-MAYBE: add usbd as a default feature
 default = [ "rt" ]
 
 [dev-dependencies]
 # TG-REMOVED: # cortex-m-rtfm = "0.5"
 panic-halt = "0.2.0"
+# TG-TODO-MAYBE: update panic-semihosting
 panic-semihosting = "0.5.0"
+# TG-TODO-MAYBE: update cortex-m-semihosting
 cortex-m-semihosting = { version = "0.3.5", features = ["jlink-quirks"] }
 # TG-CHANGE: upgraded to "0.7.3" from "0.6.6"
 cortex-m-rt = "0.7.3"
+# TG-TODO-MAYBE: update usbd-serial
 usb-device = "0.2"
+# TG-TODO-MAYBE: update usbd-serial
 usbd-serial = "0.1.0"
 
 [profile.dev]

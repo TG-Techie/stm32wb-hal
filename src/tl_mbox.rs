@@ -261,7 +261,9 @@ static mut BLE_CMD_BUFFER: MaybeUninit<CmdPacket> = MaybeUninit::uninit();
 static mut HCI_ACL_DATA_BUFFER: MaybeUninit<[u8; TL_PACKET_HEADER_SIZE + 5 + 251]> =
     MaybeUninit::uninit();
 
-pub type HeaplessEvtQueue = spsc::Queue<EvtBox, heapless::consts::U32, u8, spsc::SingleCore>;
+// TG-CHANGE: updating heapless to 0.8.0 moves to const generics (YAY!)
+pub type HeaplessEvtQueue = spsc::Queue<EvtBox, 32>;
+// pub type HeaplessEvtQueue = spsc::Queue<EvtBox, heapless::consts::U32, u8, spsc::SingleCore>;
 
 pub struct TlMbox {
     sys: sys::Sys,
@@ -313,7 +315,9 @@ impl TlMbox {
         let ble = ble::Ble::new(ipcc);
         let mm = mm::MemoryManager::new();
 
-        let evt_queue = unsafe { heapless::spsc::Queue::u8_sc() };
+        // TG-CHANGE: updating heapless to 0.8.0, ::u8_sc() turns into ::new()
+        // TG-CHANGE: updating heapless to 0.8.0, unsafe block no longer needed
+        let evt_queue = heapless::spsc::Queue::new();
 
         TlMbox {
             sys,

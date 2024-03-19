@@ -73,7 +73,8 @@ fn main() -> ! {
 
         match serial.read(&mut buf) {
             Ok(count) if count > 0 => {
-                // Echo back in upper case
+                // TG-CHANGE: echo a * after the received data
+                // Echo back in upper case followed by a *
                 for c in buf[0..count].iter_mut() {
                     if 0x61 <= *c && *c <= 0x7a {
                         *c &= !0x20;
@@ -89,6 +90,7 @@ fn main() -> ! {
                         _ => {}
                     }
                 }
+                while serial.write("*".as_bytes()).is_err() {}
             }
             _ => {}
         }

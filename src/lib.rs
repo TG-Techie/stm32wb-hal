@@ -5,8 +5,10 @@
 
 #![no_std]
 
+// TG-TODO: update to embedded-hal 1.0
 pub use embedded_hal as hal;
-// TODO: this pac doesn't have stm32wb35 support yet
+
+// TODO: this pac doesn't have stm32wb**3**5 support yet
 pub use stm32wb::stm32wb55 as pac;
 
 #[cfg(feature = "rt")]
@@ -34,4 +36,6 @@ pub mod smps;
 pub mod time;
 pub mod tl_mbox;
 pub mod traits;
+
+#[cfg(feature = "stm32-usbd")]
 pub mod usb;

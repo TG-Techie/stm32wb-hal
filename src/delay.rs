@@ -5,7 +5,9 @@ use cortex_m::asm;
 use cortex_m::peripheral::syst::SystClkSource;
 use cortex_m::peripheral::SYST;
 
+// TG-TODO: update delay to embedded_hal 1.0, DelayNs replaces DelayMs and DelayUs
 use crate::hal::blocking::delay::{DelayMs, DelayUs};
+
 use crate::rcc::Clocks;
 use crate::time::Hertz;
 

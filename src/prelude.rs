@@ -1,8 +1,10 @@
 //! Prelude - Include traits for hal
 
+// TG-TODO: update to embedded-hal 1.0
 pub use crate::hal::prelude::*; // embedded hal traits
 
-pub use embedded_hal::digital::v2::OutputPin;
+// TG-TODO: update to embedded-hal 1.0
+pub use crate::hal::digital::v2::OutputPin;
 
 pub use crate::datetime::U32Ext as _stm32wb_hal_datetime_U32Ext;
 pub use crate::ipcc::IpccExt as _stm32wb_hal_ipcc_IpccExt;

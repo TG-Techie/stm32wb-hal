@@ -1,0 +1,1 @@
+cargo build --example usb_serial --no-default-features  --features "xG-package stm32-usbd" && py dfu-upload.py --file target/thumbv7em-none-eabihf/debug/examples/usb_serial
