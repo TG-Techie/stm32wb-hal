@@ -47,7 +47,7 @@ impl LhciC1DeviceInformationCcrp {
             wireless_fw_info_table,
         } = unsafe { &*(&*TL_REF_TABLE.as_ptr()).device_info_table }.clone();
 
-        let dbgmcu = unsafe { stm32wb_pac::Peripherals::steal() }.DBGMCU;
+        let dbgmcu = unsafe { crate::pac::Peripherals::steal() }.DBGMCU;
         let rev_id = dbgmcu.idcode.read().rev_id().bits();
         let dev_code_id = dbgmcu.idcode.read().dev_id().bits();
 

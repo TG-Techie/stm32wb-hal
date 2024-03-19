@@ -313,6 +313,7 @@ impl RccExt for RCC {
 ///
 /// The existence of this value indicates that the clock configuration can no longer be changed
 #[derive(Clone, Copy, Debug)]
+#[allow(dead_code)]
 pub struct Clocks {
     sysclk: Hertz, // Max 64 MHz
 

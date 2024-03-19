@@ -19,7 +19,8 @@ from __future__ import annotations
 
 import os
 import sys
-import time
+
+# import time
 import shutil
 from pathlib import Path
 from tempfile import mkdtemp
@@ -117,7 +118,12 @@ def get_pacakge_name() -> str:
 
 
 def get_build_outputs() -> dict[str, Path]:
-    # cargo places teh build output in `./target/{triple}/{build_profile}/{binary_name}`
+    # cargo places the build output in `./target/{triple}/{build_profile}/{binary_name}`
+    # - OR -
+    # examples are in `./target/{triple}/{build_profile}/examples/{example_name}`
+
+    # TODO: examples are not handled yet
+
     triple = get_cargo_build_target_triple()
     package_name = get_pacakge_name()
 
@@ -145,6 +151,8 @@ def get_arg_option(option_name: str, *, shortcut: str | None = None) -> tuple[st
     """
     get the build profile from the command line arguments.
     searches for all arguments that start with `--{full_name}=` or `-short_name=` (if provided)
+    - OR -
+    Searches for all arguments that come after `--{full_name}` or `-short_name` (if provided)
     """
 
     wrapped_full_name: Final = f"--{option_name}"
@@ -153,14 +161,27 @@ def get_arg_option(option_name: str, *, shortcut: str | None = None) -> tuple[st
         wrapped_full_name if shortcut is None else f"-{shortcut}"
     )
 
-    args = tuple(
-        arg
+    option_names = frozenset({wrapped_full_name, wrapped_short_name})
+
+    args_via_equals = tuple(
+        arg.split("=", 1)[1]  # remove the `=` and name pr
         for arg in sys.argv
-        if arg.startswith(wrapped_full_name) or arg.startswith(wrapped_short_name)
+        if any(arg.startswith(name + "=") for name in option_names)
     )
 
-    # remove the `--full_name` or `-short_name` from the start of the argument
-    return tuple(arg.split("=", 1)[1] for arg in args)
+    args_via_space: list[str] = []
+    for name in option_names:
+        if name not in sys.argv:
+            continue
+
+        idx = sys.argv.index(wrapped_full_name)
+
+        if idx >= len(sys.argv):  # if out of bounds
+            continue
+
+        args_via_space.append(sys.argv[idx + 1])
+
+    return tuple({*args_via_equals, *args_via_space})
 
 
 def select_build_to_upload(builds: dict[str, Path] | None = None) -> Path:
@@ -169,8 +190,9 @@ def select_build_to_upload(builds: dict[str, Path] | None = None) -> Path:
     """
     builds = builds or get_build_outputs()
 
-    profiles: Final = get_arg_option("profile", shortcut="p") or None
-    file: Final = get_arg_option("file", shortcut="f") or None
+    profiles: Final = get_arg_option("profile") or None
+    example_name: Final = get_arg_option("example") or None
+    file: Final = get_arg_option("file") or None
 
     if file is not None and len(file) > 1:
         error(
@@ -182,10 +204,13 @@ def select_build_to_upload(builds: dict[str, Path] | None = None) -> Path:
     elif file is not None:
         if profiles is not None:
             error(
-                (
-                    f"ERROR: multiple build profiles and files specified {profiles=}, {file=}"
-                    f"\n    please specify only one build profile xor one file to upload when calling {NAME_OF_THIS_UTIL}"
-                )
+                f"ERROR: multiple build profiles and files specified {profiles=}, {file=}"
+                f"\n    please specify only one build profile xor one file to upload when calling {NAME_OF_THIS_UTIL}"
+            )
+        if example_name is not None:
+            error(
+                f"ERROR: multiple files and examples specified {example_name=}, {file=}"
+                f"\n    please specify only one file xor one example to upload when calling {NAME_OF_THIS_UTIL}"
             )
 
         file_path = Path(file[0])
@@ -198,6 +223,8 @@ def select_build_to_upload(builds: dict[str, Path] | None = None) -> Path:
             )
 
         return file_path
+    else:
+        assert file is None
 
     if profiles is not None and len(profiles) > 1:
         error(
@@ -233,6 +260,9 @@ def select_build_to_upload(builds: dict[str, Path] | None = None) -> Path:
                 f"\n    (did find {set(builds.keys())})"
             )
         )
+
+    if example_name is not None:
+        error((f"ERROR: examples not supported yet {example_name=}"))
 
     return builds[selected_profile]
 

@@ -335,12 +335,14 @@ macro_rules! gpio {
 
                 /// Enable external interrupts from this pin.
                 fn enable_interrupt(&mut self, exti: &mut EXTI) {
-                    exti.c1imr1.modify(|r, w| unsafe { w.bits(r.bits() | (1 << self.i)) });
+                    // TG-CHANGE: exti.c1imr1 -> exti.imr1
+                    exti.imr1.modify(|r, w| unsafe { w.bits(r.bits() | (1 << self.i)) });
                 }
 
                 /// Disable external interrupts from this pin
                 fn disable_interrupt(&mut self, exti: &mut EXTI) {
-                    exti.c1imr1.modify(|r, w| unsafe { w.bits(r.bits() & !(1 << self.i)) });
+                    // TG-CHANGE: exti.c1imr1 -> exti.imr1
+                    exti.imr1.modify(|r, w| unsafe { w.bits(r.bits() & !(1 << self.i)) });
                 }
 
                 /// Clear the interrupt pending bit for this pin
@@ -600,12 +602,14 @@ macro_rules! gpio {
 
                     /// Enable external interrupts from this pin. CPU1.
                     fn enable_interrupt(&mut self, exti: &mut EXTI) {
-                        exti.c1imr1.modify(|r, w| unsafe { w.bits(r.bits() | (1 << $i)) });
+                        // TG-CHANGE: exti.c1imr1 -> exti.imr1
+                        exti.imr1.modify(|r, w| unsafe { w.bits(r.bits() | (1 << $i)) });
                     }
 
                     /// Disable external interrupts from this pin CPU1.
                     fn disable_interrupt(&mut self, exti: &mut EXTI) {
-                        exti.c1imr1.modify(|r, w| unsafe { w.bits(r.bits() & !(1 << $i)) });
+                        // TG-CHANGE: exti.c1imr1 -> exti.imr1
+                        exti.imr1.modify(|r, w| unsafe { w.bits(r.bits() & !(1 << $i)) });
                     }
 
                     /// Clear the interrupt pending bit for this pin

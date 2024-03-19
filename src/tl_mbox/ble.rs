@@ -58,6 +58,7 @@ impl Ble {
 }
 
 pub fn ble_send_cmd(ipcc: &mut Ipcc, buf: &[u8]) {
+    // TG-TODO-MAYBE: narrow unsafe block
     unsafe {
         let pcmd_buffer: *mut CmdPacket = (&*TL_REF_TABLE.assume_init().ble_table).pcmd_buffer;
         let pcmd_serial: *mut CmdSerial = &mut (*pcmd_buffer).cmdserial;
@@ -65,7 +66,8 @@ pub fn ble_send_cmd(ipcc: &mut Ipcc, buf: &[u8]) {
 
         core::ptr::copy(buf.as_ptr(), pcmd_serial_buf, buf.len());
 
-        let mut cmd_packet = &mut *(&*TL_REF_TABLE.assume_init().ble_table).pcmd_buffer;
+        // TG-CHANGE: mut removed from cmd_packet
+        let cmd_packet = &mut *(&*TL_REF_TABLE.assume_init().ble_table).pcmd_buffer;
         cmd_packet.cmdserial.ty = TlPacketType::BleCmd as u8;
     }
 
@@ -74,8 +76,8 @@ pub fn ble_send_cmd(ipcc: &mut Ipcc, buf: &[u8]) {
 
 #[allow(dead_code)] // Not used currently but reserved
 pub(super) fn ble_send_acl_data(ipcc: &mut Ipcc) {
-    let mut cmd_packet =
-        unsafe { &mut *(*TL_REF_TABLE.assume_init().ble_table).phci_acl_data_buffer };
+    // TG-CHANGE: remove mut from cmd_packet
+    let cmd_packet = unsafe { &mut *(*TL_REF_TABLE.assume_init().ble_table).phci_acl_data_buffer };
     cmd_packet.acl_data_serial.ty = TlPacketType::AclData as u8;
 
     ipcc.c1_set_flag_channel(channels::cpu1::IPCC_HCI_ACL_DATA_CHANNEL);

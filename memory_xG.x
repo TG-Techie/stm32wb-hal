@@ -6,7 +6,10 @@
 MEMORY
 {
     FLASH (rx)                 : ORIGIN = 0x08000000, LENGTH = 1M
-    RAM (xrw)                  : ORIGIN = 0x20000004, LENGTH = 191K
+    /* TG-CHANGE: change RAM base address to 0x20000000 from 0x20000004 do to:
+     * arm-none-eabi-ld: ERROR(cortex-m-rt): stack start address is not 8-byte aligned. 
+     */
+    RAM (xrw)                  : ORIGIN = 0x20000000, LENGTH = 191K
     RAM_SHARED (xrw)           : ORIGIN = 0x20030000, LENGTH = 10K
 }
 

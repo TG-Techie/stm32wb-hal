@@ -171,9 +171,7 @@ impl Drop for EvtBox {
     fn drop(&mut self) {
         use crate::ipcc::IpccExt;
 
-        let mut ipcc = unsafe { stm32wb_pac::Peripherals::steal() }
-            .IPCC
-            .constrain();
+        let mut ipcc = unsafe { crate::pac::Peripherals::steal() }.IPCC.constrain();
         super::mm::evt_drop(self.ptr, &mut ipcc);
     }
 }

@@ -1,5 +1,9 @@
+#![doc = "IPCC - **I**nter **P**rocessor **C**ommunication **C**ontroller for communication with Bluetooth Low Energy and 802.15.4"]
+
+use crate::pac::IPCC;
+
+// the Rcc type from this HAL
 use crate::rcc::Rcc;
-use stm32wb_pac::IPCC;
 
 #[derive(Debug, Copy, Clone)]
 #[repr(C)]
@@ -57,8 +61,8 @@ impl Ipcc {
             .c1cr
             .modify(|_, w| w.rxoie().set_bit().txfie().set_bit());
         unsafe {
-            cortex_m::peripheral::NVIC::unmask(stm32wb_pac::interrupt::IPCC_C1_RX_IT);
-            cortex_m::peripheral::NVIC::unmask(stm32wb_pac::interrupt::IPCC_C1_TX_IT);
+            cortex_m::peripheral::NVIC::unmask(crate::pac::interrupt::IPCC_C1_RX_IT);
+            cortex_m::peripheral::NVIC::unmask(crate::pac::interrupt::IPCC_C1_TX_IT);
         }
     }
 
@@ -194,17 +198,23 @@ impl Ipcc {
         }
     }
 
+    // TG-TODO-MAYBE: add a statically typed version of this function and
+    #[inline] // TG-CHANGE: added inline
     pub fn c1_is_active_flag(&self, channel: IpccChannel) -> bool {
         match channel {
-            IpccChannel::Channel1 => self.rb.c1to2sr.read().ch1f().bit(),
-            IpccChannel::Channel2 => self.rb.c1to2sr.read().ch2f().bit(),
-            IpccChannel::Channel3 => self.rb.c1to2sr.read().ch3f().bit(),
-            IpccChannel::Channel4 => self.rb.c1to2sr.read().ch4f().bit(),
-            IpccChannel::Channel5 => self.rb.c1to2sr.read().ch5f().bit(),
-            IpccChannel::Channel6 => self.rb.c1to2sr.read().ch6f().bit(),
+            // TG-CHANGE: c1to2sr -> c1toc2sr
+            // "c1toc2sr" = CPU1 to CPU2 status register
+            IpccChannel::Channel1 => self.rb.c1toc2sr.read().ch1f().bit(),
+            IpccChannel::Channel2 => self.rb.c1toc2sr.read().ch2f().bit(),
+            IpccChannel::Channel3 => self.rb.c1toc2sr.read().ch3f().bit(),
+            IpccChannel::Channel4 => self.rb.c1toc2sr.read().ch4f().bit(),
+            IpccChannel::Channel5 => self.rb.c1toc2sr.read().ch5f().bit(),
+            IpccChannel::Channel6 => self.rb.c1toc2sr.read().ch6f().bit(),
         }
     }
 
+    // TG-TODO-MAYBE: add a statically typed version of this function and
+    #[inline] // TG-CHANGE: added inline
     pub fn c2_is_active_flag(&self, channel: IpccChannel) -> bool {
         match channel {
             IpccChannel::Channel1 => self.rb.c2toc1sr.read().ch1f().bit(),

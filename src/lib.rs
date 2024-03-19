@@ -6,7 +6,8 @@
 #![no_std]
 
 pub use embedded_hal as hal;
-pub use stm32wb_pac as pac;
+// TODO: this pac doesn't have stm32wb35 support yet
+pub use stm32wb::stm32wb55 as pac;
 
 #[cfg(feature = "rt")]
 pub use self::pac::interrupt;

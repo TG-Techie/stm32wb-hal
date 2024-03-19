@@ -4,11 +4,16 @@ use core::marker::PhantomData;
 use core::mem;
 
 use crate::hal;
-use crate::stm32::{TIM1, TIM16, TIM17, TIM2};
+use crate::stm32::{TIM1, TIM2};
+// use crate::stm32::{TIM16, TIM17};
+
+// TODO: implement TIM16, TIM17,
+// TG-COMMENT: The TIM16 and TIM17 seem to be supported on these MCUs according to
+// table 7 in stm document DS11929 (Rev 16)
 
 use crate::gpio::gpioa::*;
 use crate::gpio::gpiob::*;
-use crate::gpio::{Alternate, Output, PushPull, AF1, AF14};
+use crate::gpio::{Alternate, Output, PushPull, AF1};
 use crate::rcc::Rcc;
 use crate::time::Hertz;
 
@@ -42,7 +47,7 @@ macro_rules! pins_to_channels_mapping {
 
 // TODO: add other timers and channels
 pins_to_channels_mapping! {
-    // TIM1
+    // TODO: TIM1
     // TIM1: (PA8, PA9, PA10, PA11), (C1, C2, C3, C4), (AF1, AF1, AF1, AF1);
     // TIM1: (PA9, PA10, PA11), (C2, C3, C4), (AF1, AF1, AF1);
     // TIM1: (PA8, PA10, PA11), (C1, C3, C4), (AF1, AF1, AF1);
@@ -71,6 +76,7 @@ pins_to_channels_mapping! {
     TIM2: (PB11), (C4), (AF1);
     TIM2: (PA15), (C1), (AF1);
 
+    // TODO: TIM16
     // TIM16: (PB14), (C1), (AF14);
     // TIM16: (PB15), (C2), (AF14);
     // TIM16: (PA2), (C1), (AF14);
@@ -79,6 +85,10 @@ pins_to_channels_mapping! {
     // TIM16: (PB14, PA3), (C1, C2), (AF14, AF14);
     // TIM16: (PA2, PB15), (C1, C2), (AF14, AF14);
     // TIM16: (PA2, PA3), (C1, C2), (AF14, AF14);
+
+
+    // TODO: TIM17
+    // ...
 }
 
 pub trait PwmExt1: Sized {
@@ -168,19 +178,23 @@ macro_rules! advanced_timer {
                 rcc.rb.$apbrstr.modify(|_, w| w.$timXrst().clear_bit());
 
                 if PINS::C1 {
-                    tim.ccmr1_output().modify(|_, w| unsafe { w.oc1pe().set_bit().oc1m().bits(6) });
+                    // TG-CHANGE: remove unsafe block
+                    tim.ccmr1_output().modify(|_, w| { w.oc1pe().set_bit().oc1m().bits(6) });
                 }
 
                 if PINS::C2 {
-                    tim.ccmr1_output().modify(|_, w| unsafe { w.oc2pe().set_bit().oc2m().bits(6) });
+                    // TG-CHANGE: remove unsafe block
+                    tim.ccmr1_output().modify(|_, w| { w.oc2pe().set_bit().oc2m().bits(6) });
                 }
 
                 if PINS::C3 {
-                    tim.ccmr2_output().modify(|_, w| unsafe { w.oc3pe().set_bit().oc3m().bits(6) });
+                    // TG-CHANGE: remove unsafe block
+                    tim.ccmr2_output().modify(|_, w| { w.oc3pe().set_bit().oc3m().bits(6) });
                 }
 
                 if PINS::C4 {
-                    tim.ccmr2_output().modify(|_, w| unsafe { w.oc4pe().set_bit().oc4m().bits(6) });
+                    // TG-CHANGE: remove unsafe block
+                    tim.ccmr2_output().modify(|_, w| { w.oc4pe().set_bit().oc4m().bits(6) });
                 }
 
                 let clk = rcc.clocks.pclk2().0;
@@ -237,19 +251,23 @@ macro_rules! standard_timer {
                 rcc.rb.$apbrstr.modify(|_, w| w.$timXrst().clear_bit());
 
                 if PINS::C1 {
-                    tim.ccmr1_output().modify(|_, w| unsafe { w.oc1pe().set_bit().oc1m().bits(6) });
+                    // TG-CHANGE: remove unsafe block
+                    tim.ccmr1_output().modify(|_, w|  { w.oc1pe().set_bit().oc1m().bits(6) });
                 }
 
                 if PINS::C2 {
-                    tim.ccmr1_output().modify(|_, w| unsafe { w.oc2pe().set_bit().oc2m().bits(6) });
+                    // TG-CHANGE: remove unsafe block
+                    tim.ccmr1_output().modify(|_, w|  { w.oc2pe().set_bit().oc2m().bits(6) });
                 }
 
                 if PINS::C3 {
-                    tim.ccmr2_output().modify(|_, w| unsafe { w.oc3pe().set_bit().oc3m().bits(6) });
+                    // TG-CHANGE: remove unsafe block
+                    tim.ccmr2_output().modify(|_, w|  { w.oc3pe().set_bit().oc3m().bits(6) });
                 }
 
                 if PINS::C4 {
-                    tim.ccmr2_output().modify(|_, w| unsafe { w.oc4pe().set_bit().oc4m().bits(6) });
+                    // TG-CHANGE: remove unsafe block
+                    tim.ccmr2_output().modify(|_, w|  { w.oc4pe().set_bit().oc4m().bits(6) });
                 }
 
                 let clk = rcc.clocks.pclk1().0;
@@ -285,6 +303,8 @@ macro_rules! standard_timer {
     }
 }
 
+// TODO: why is this here / what peripherals are these for?
+#[allow(unused_macros)]
 macro_rules! small_timer {
     ($($TIMX:ident: ($timX:ident, $timXen:ident, $timXrst:ident, $apben:ident, $apbrstr:ident, $psc_width:ident, $arr_width:ident),)+) => {
         $(
